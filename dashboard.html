@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favorite Recipes</title>
+    <!-- Style CSS -->
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="main">
+        <h1>Favorite Recipes</h1>
+          
+        <!-- Navigation Links Section -->
+        <nav class="navigation">
+            <a href="search_results.html?filter=all" class="nav-link">All Recipes</a>
+            <a href="search_results.html?filter=veg" class="nav-link">Vegetarian</a>
+            <a href="search_results.html?filter=nonveg" class="nav-link">Non-Vegetarian</a>
+            <a href="help.html" class="nav-link">Help</a>
+        </nav>
+
+
+        <!-- Favorite Recipes Section -->
+        <div class="favorite-recipes">
+            <h2>Your Favorite Recipes</h2>
+            <ul id="favoriteResults"></ul>
+            
+        </div>
+
+        
+
+        <!-- Recipe Details Section -->
+        <div class="recipe-details" id="selectedRecipe"></div>
+
+
+       <!-- Links at the bottom -->
+        <div class="bottom-links">
+            <a href="index.html" class="home-link">Back to Home</a>
+        </div>
+    </div>
+
+    <script src="./script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            displayFavoriteRecipes();  // Display the favorite recipes when the page loads
+            history.replaceState({ page: 'dashboard' }, '', 'dashboard.html');  // Set the initial state for the dashboard
+        });
+
+        // Handle the back button to return to the dashboard
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.page === 'dashboard') {
+                displayFavoriteRecipes();
+                document.getElementById('selectedRecipe').innerHTML = '';  // Clear recipe details on back button
+            }
+        });
+
+        // Function to display recipe details in the dashboard
+        function displayRecipeDetails(recipeLabel) {
+            const recipe = recipes.find(r => r.label === recipeLabel);
+
+            if (recipe) {
+                // Push a state for recipe view
+                history.pushState({ page: 'recipe', label: recipeLabel }, '', `#${recipeLabel}`);
+
+                const recipeDetailsContainer = document.querySelector('#selectedRecipe');
+                recipeDetailsContainer.innerHTML = `
+                    <h3>${recipe.label}</h3>
+                    <div class="recipe-ingredients">
+                        <h4>Ingredients:</h4>
+                        <ul>
+                            ${recipe.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="recipe-instructions">
+                        <h4>Instructions:</h4>
+                        ${recipe.instructions.split('\n').map(line => `<p>${line}</p>`).join('')}
+                    </div>
+
+                    <!-- Rating and Comments Section -->
+                    <div class="recipe-rating-comments">
+                        <div class="recipe-rating">
+                            <h4>Rate this recipe:</h4>
+                            ${generateStarRating(recipeLabel)}  <!-- Star Rating UI -->
+                        </div>
+
+                        <div class="recipe-comments">
+                            <h4>Comments:</h4>
+                            <textarea id="commentInput" placeholder="Add your comment"></textarea>
+                            <button onclick="addComment('${recipeLabel}')">Submit Comment</button>
+                            <div id="commentsList">
+                                ${displayComments(recipeLabel)}  <!-- Show existing comments -->
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+    </script>
+</body>
+</html>

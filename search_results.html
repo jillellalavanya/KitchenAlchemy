@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <!-- Link to your CSS file -->
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+    <div class="main">
+        <h1>Search Results</h1>
+
+          <!-- Navigation Links Section -->
+        <nav class="navigation">
+            <a href="search_results.html?filter=all" class="nav-link">All Recipes</a>
+            <a href="search_results.html?filter=veg" class="nav-link">Vegetarian</a>
+            <a href="search_results.html?filter=nonveg" class="nav-link">Non-Vegetarian</a>
+            <a href="help.html" class="nav-link">Help</a>
+        </nav>
+
+
+        <!-- Recipe Result Section -->
+        <div class="recipe-result">
+            <ul id="results"></ul>
+        </div>
+
+        <!-- Recipe Details Section -->
+        <div class="recipe-details" id="selectedRecipe"></div>
+
+        <!-- Links at the bottom -->
+        <div class="bottom-links">
+            <a href="index.html" class="home-link">Back to Home</a>
+            <a href="dashboard.html" class="favorites-link">View Favorites</a> 
+        </div>
+    </div>
+
+    <script src="./script.js"></script>
+    <script>
+        // Get query parameters from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchValue = urlParams.get('search') || '';
+        const filterValue = urlParams.get('filter') || 'all';
+
+        // Display search results on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            searchRecipes(searchValue, filterValue); // Call the search function
+        });
+
+        // Search and filter recipes based on the query
+        function searchRecipes(searchValue, filterValue)
+         {
+            const filteredRecipes = recipes.filter(recipe => {
+                const matchesSearch = recipe.label.toLowerCase().includes(searchValue.toLowerCase());
+                const matchesFilter = filterValue === 'all' || recipe.type === filterValue;
+                return matchesSearch && matchesFilter;
+            });
+
+            displayRecipes(filteredRecipes); 
+        }
+
+
+        function displayRecipes(filteredRecipes) 
+         {
+            let html = '';
+            if (filteredRecipes.length > 0) {
+                filteredRecipes.forEach(recipe => {
+                    const isFavorite = favoriteRecipes.includes(recipe.label); // Check favorite status
+                    html += `
+                        <li class="recipe-item">
+                            <div class="recipe-image">
+                                <img src="${recipe.image}" alt="${recipe.label}">
+                                <h3>${recipe.label}</h3>
+                            </div>
+                            <div class="recipe-actions">
+                                <button onclick="toggleFavorite('${recipe.label}')">
+                                    ${isFavorite ? 'Unfavorite' : 'Favorite'}
+                                </button>
+                                <button onclick="displayRecipeDetails('${recipe.label}')">View Recipe</button>
+                            </div>
+                        </li>
+                    `;
+                });
+            } else {
+                // No search results found, show message and suggest popular recipes
+                html = `
+                    <div><h2>Sorry! We Couldn't find the recipe you were looking for but here are some popular recipes you might like:</h2></div>
+                    
+                    <ul class="popular-recipes-list">
+                `;
+
+                // Popular recipes to suggest
+                const popularRecipes = ["Paneer Butter Masala", "Butter Chicken", "Vegetable Biryani", "Grilled Fish Tacos"];
+                
+                popularRecipes.forEach(recipeLabel => {
+                    const recipe = recipes.find(r => r.label === recipeLabel);
+                    const isFavorite = favoriteRecipes.includes(recipe.label);  
+                    html += `
+                        <li class="recipe-item">
+                            <div class="recipe-image">
+                                <img src="${recipe.image}" alt="${recipe.label}">
+                                <h3>${recipe.label}</h3>
+                            </div>
+                            <div class="recipe-actions">
+                                <button onclick="toggleFavorite('${recipe.label}')">
+                                    ${isFavorite ? 'Unfavorite' : 'Favorite'}
+                                </button>
+                                <button onclick="displayRecipeDetails('${recipe.label}')">View Recipe</button>
+                            </div>
+                        </li>
+                    `;
+                });
+
+                html += `</ul>`; 
+            }
+            document.getElementById('results').innerHTML = html;
+            updateFavoritesUI();         }
+    </script>
+</body>
+</html>

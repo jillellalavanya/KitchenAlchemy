@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Details</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <!-- Navbar placeholder at the top of the page -->
+    <div id="navbar"></div>
+
+<ul id="favoriteResults"></ul>
+
+
+    <!-- Main content of the Recipe Details page -->
+    <div class="main">
+        <h1 id="recipeTitle">Recipe Details</h1>
+
+        <!-- Recipe Details Section -->
+        <div class="recipe-details" id="recipeDetails"></div>
+
+        <!-- Rating and Comments Section -->
+        <div class="recipe-rating-comments">
+            <div class="recipe-rating">
+                <h4>Rate this recipe:</h4>
+                <div id="starRating"></div> 
+            </div>
+
+            <div class="recipe-comments">
+                <h4>Comments:</h4>
+                <textarea id="commentInput" placeholder="Add your comment"></textarea>
+                <div id="commentError" style="color: red; display: none;">Please enter a valid comment.</div>
+                <button onclick="addComment()">Submit Comment</button>
+                <div id="commentsList"></div> 
+            </div>
+        </div>
+
+        <!-- Links at the bottom -->
+        <div class="bottom-links">
+            <a href="index.html" class="home-link">Back to Home</a>
+            <a href="dashboard.html" class="favorites-link">View Favorites</a>
+        </div>
+    </div>
+
+    <script src="./script.js"></script>
+    <script>
+        // Load the navbar dynamically from navbar.html
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('navbar').innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error loading navbar:', error);
+            });
+
+        let currentRecipeLabel = '';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get the recipe label from the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const recipeLabel = urlParams.get('recipe');
+            currentRecipeLabel = recipeLabel;
+
+            // Find the recipe by label
+            const recipe = recipes.find(r => r.label === recipeLabel);
+
+            if (recipe) {
+                // Display the recipe details
+                document.getElementById('recipeTitle').textContent = recipe.label;
+                document.getElementById('recipeDetails').innerHTML = `
+                    <div class="recipe-ingredients">
+                        <h4>Ingredients:</h4>
+                        <ul>
+                            ${recipe.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="recipe-instructions">
+                        <h4>Instructions:</h4>
+                        ${recipe.instructions.split('\n').map(line => `<p>${line}</p>`).join('')}
+                    </div>
+                `;
+
+                // Display star rating
+                document.getElementById('starRating').innerHTML = generateStarRating(recipeLabel);
+
+                // Display comments
+                document.getElementById('commentsList').innerHTML = displayComments(recipeLabel);
+            } else {
+                document.getElementById('recipeDetails').innerHTML = '<p>Recipe not found.</p>';
+            }
+        });
+
+        // Function to add a comment
+        function addComment() {
+            const commentInput = document.getElementById('commentInput');
+            const commentError = document.getElementById('commentError');
+            const comment = commentInput.value.trim();
+
+            if (comment === "") {
+                // Show error message if the comment is empty
+                commentError.style.display = 'block';
+            } else {
+                // Hide error message and add the comment
+                commentError.style.display = 'none';
+
+                if (!recipeReviews[currentRecipeLabel]) {
+                    recipeReviews[currentRecipeLabel] = { comments: [], rating: 0 };
+                }
+
+                recipeReviews[currentRecipeLabel].comments.push(comment);
+                localStorage.setItem('recipeReviews', JSON.stringify(recipeReviews));
+                commentInput.value = '';  // Clear the input field
+                document.getElementById('commentsList').innerHTML = displayComments(currentRecipeLabel);  // Update the comment list
+            }
+        }
+
+        // Function to generate star rating
+        function generateStarRating(recipeLabel) {
+            const currentRating = recipeReviews[recipeLabel]?.rating || 0;
+            let starsHtml = '';
+
+            for (let i = 1; i <= 5; i++) {
+                starsHtml += `
+                    <span class="star" onclick="rateRecipe('${recipeLabel}', ${i})">
+                        ${i <= currentRating ? '★' : '☆'}
+                    </span>
+                `;
+            }
+
+            return starsHtml;
+        }
+
+        function rateRecipe(recipeLabel, rating) {
+            if (!recipeReviews[recipeLabel]) {
+                recipeReviews[recipeLabel] = { comments: [], rating: 0, hasRated: false };
+            }
+
+            // Check if the user has already rated
+            if (recipeReviews[recipeLabel].hasRated) {
+                alert("You have already rated this recipe.");
+                return;
+            }
+
+            // Set the rating and update localStorage
+            recipeReviews[recipeLabel].rating = rating;
+            recipeReviews[recipeLabel].hasRated = true;  // Mark as rated
+            localStorage.setItem('recipeReviews', JSON.stringify(recipeReviews));
+
+            // Display the notification message
+            const ratingMessage = document.getElementById('ratingMessage');
+            ratingMessage.textContent = "Thank you for rating this recipe!";
+            ratingMessage.classList.add('show');
+
+            // Hide the message after 3 seconds
+            setTimeout(() => {
+                ratingMessage.classList.remove('show');
+            }, 3000);
+
+            // Update the UI to reflect the new rating
+            document.getElementById('starRating').innerHTML = generateStarRating(recipeLabel);
+            disableRatingUI(recipeLabel);  // Disable rating UI
+        }
+    </script>
+</body>
+</html>

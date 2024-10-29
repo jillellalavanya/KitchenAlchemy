@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KITCHEN ALCHEMY</title>
+    <!-- Style CSS -->
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="main">
+        <h1>KITCHEN ALCHEMY</h1>
+
+        <!-- Navigation Links Section -->
+        <nav class="navigation">
+            <a href="search_results.html?filter=all" class="nav-link">All Recipes</a>
+            <a href="search_results.html?filter=veg" class="nav-link">Vegetarian</a>
+            <a href="search_results.html?filter=nonveg" class="nav-link">Non-Vegetarian</a>
+            <a href="help.html" class="nav-link">Help</a>
+        </nav>
+
+        <!-- Search Section -->
+        <div class="search">
+            <div class="search-box">
+                <div class="search-field">
+                    <input placeholder="Search food" class="input" type="text" id="searchInput">
+                    <div class="search-box-icon">
+                        <button class="btn-icon-content" id="searchButton">
+                            <i class="search-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 512 512">
+                                    <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" fill="#fff"></path>
+                                </svg>
+                            </i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+                <!-- Popular Recipes Section -->
+        <div class="popular-recipes">
+            <h2>Popular Recipes</h2>
+            <ul id="popularRecipesList"></ul>
+        </div>
+
+        <!-- Recipe Result Section -->
+        <div class="recipe-result">
+            <ul id="results"></ul>
+        </div>
+
+        <!-- Links at the bottom -->
+        <div class="bottom-links">
+            <a href="dashboard.html" class="favorites-link">View Favorites</a>
+                    </div>
+    </div>
+
+    <script src="./script.js"></script>
+    <script>
+        
+        // Function to display popular recipes on index.html
+        function displayPopularRecipes() {
+            const popularRecipes = ["Paneer Butter Masala", "Butter Chicken", "Vegetable Biryani", "Grilled Fish Tacos"];
+            let html = '';
+
+            popularRecipes.forEach(recipeLabel => {
+                const recipe = recipes.find(r => r.label === recipeLabel);
+                const isFavorite = favoriteRecipes.includes(recipe.label); // Check favorite status
+                html += `
+                    <li class="recipe-item">
+                        <div class="recipe-image">
+                            <img src="${recipe.image}" alt="${recipe.label}">
+                            <h3>${recipe.label}</h3>
+                        </div>
+                        <div class="recipe-actions">
+                            <button onclick="toggleFavorite('${recipe.label}')">
+                                ${isFavorite ? 'Unfavorite' : 'Favorite'}
+                            </button>
+                            <button onclick="displayRecipeDetails('${recipe.label}')">View Recipe</button>
+                        </div>
+                    </li>
+                `;
+            });
+
+            document.getElementById('popularRecipesList').innerHTML = html;
+        }
+
+               // Display popular recipes when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            displayPopularRecipes(); // Populate the popular recipes section
+        });
+    </script>
+</body>
+</html>  l
